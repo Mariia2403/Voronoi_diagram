@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfAppDiagramV"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+         Title="MainWindow" Height="550" Width="800">
     <Grid>
-        
+        <Canvas Name="DrawCanvas" Background="White" MouseDown="DrawCanvas_MouseDown" Margin="0,100,0,0"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Background="#AAFFFFFF">
+            <Button Content="Генерувати точки" Click="GeneratePoints_Click" Margin="5"/>
+            <Button Content="Один потік" Click="SingleThread_Click" Margin="5"/>
+            <Button Content="Багатопотоково" Click="MultiThread_Click" Margin="5"/>
+            <TextBlock Name="StatusText" Margin="10" />
+        </StackPanel>
     </Grid>
 </Window>
