@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,5 +63,123 @@ namespace WpfAppDiagramV
                 DrawCanvas.Children.Add(el);
             }
         }
+
+        private void GeneratePoints_Click(object sender, RoutedEventArgs e)
+        {
+            var rand = new Random();
+            points.Clear();
+            for (int i = 0; i < 50; i++)
+            {
+                points.Add(new Point(rand.Next(width), rand.Next(height)));
+            }
+            DrawPoints();
+        }
+        private void SingleThread_Click(object sender, RoutedEventArgs e)
+        {
+            RenderVoronoi(false);
+        }
+
+        private void MultiThread_Click(object sender, RoutedEventArgs e)
+        {
+            RenderVoronoi(true);
+        }
+        private void RenderVoronoi(bool multiThreaded)
+        {
+            if (points.Count == 0) return;
+
+           
+            var stopwatch = Stopwatch.StartNew();
+            var cpuStart = Process.GetCurrentProcess().TotalProcessorTime;
+
+            StatusText.Text = "Обчислюємо...";
+            int stride = bitmap.BackBufferStride;
+            int bytesPerPixel = 4;
+            byte[] pixels = new byte[height * stride];
+
+            int[] pixelCounts = new int[points.Count];
+
+            Action<int, int> renderSlice = (yStart, yEnd) => {
+                for (int y = yStart; y < yEnd; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        int closestIndex = 0;
+                        double minDist = Distance(x, y, points[0]);
+                        for (int i = 1; i < points.Count; i++)
+                        {
+                            double dist = Distance(x, y, points[i]);
+                            if (dist < minDist)
+                            {
+                                minDist = dist;
+                                closestIndex = i;
+                            }
+                        }
+
+                        pixelCounts[closestIndex]++;
+
+                        Color c = GetColorForIndex(closestIndex);
+                        int index = y * stride + x * bytesPerPixel;
+                        pixels[index] = c.B;
+                        pixels[index + 1] = c.G;
+                        pixels[index + 2] = c.R;
+                        pixels[index + 3] = 255;
+                    }
+                }
+            };
+
+            if (!multiThreaded)
+            {
+                renderSlice(0, height);
+            }
+            else
+            {
+                int cores = Environment.ProcessorCount;
+                int slice = height / cores;
+                Parallel.For(0, cores, i => {
+                    int y0 = i * slice;
+                    int y1 = (i == cores - 1) ? height : y0 + slice;
+                    renderSlice(y0, y1);
+                });
+            }
+
+            bitmap.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
+            StatusText.Text = "Готово";
+
+            stopwatch.Stop();
+            var cpuEnd = Process.GetCurrentProcess().TotalProcessorTime;
+            var memoryUsed = GC.GetTotalMemory(false);
+
+           
+            StatusText.Text = $"Реальний час: {stopwatch.Elapsed.TotalSeconds:F2} сек\n" +
+                              $"CPU час: {(cpuEnd - cpuStart).TotalSeconds:F2} сек\n" +
+                              $"Пам’ять: {memoryUsed / 1024 / 1024} МБ";
+
+            StatusText.Text += $"\nТочок: {points.Count}, Пікселів: {width * height}";
+
+        }
+
+        private double Distance(int x, int y, Point p)
+        {
+            double dx = x - p.X, dy = y - p.Y;
+            return dx * dx + dy * dy; 
+        }
+
+       
+
+        private Color GetColorForIndex(int index)
+        {
+            var r = (byte)(31 * index % 256);
+            var g = (byte)(67 * index % 256);
+            var b = (byte)(123 * index % 256);
+
+           
+            if (r == 0 && g == 0 && b == 0)
+            {
+                r = 50; g = 50; b = 50; 
+            }
+
+            return Color.FromRgb(r, g, b);
+        }
     }
 }
+
