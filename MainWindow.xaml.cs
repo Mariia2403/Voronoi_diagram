@@ -25,6 +25,11 @@ namespace WpfAppDiagramV
         List<Point> points = new List<Point>();
         WriteableBitmap bitmap;
         int width, height;
+        int[] pixelCounts;
+        bool currentThreadMode = false;
+
+        enum DistanceMetric { Euclidean, Manhattan, Chebyshev }
+        DistanceMetric selectedMetric = DistanceMetric.Euclidean;
         public MainWindow()
         {
             InitializeComponent();
@@ -76,11 +81,13 @@ namespace WpfAppDiagramV
         }
         private void SingleThread_Click(object sender, RoutedEventArgs e)
         {
+            currentThreadMode = false;
             RenderVoronoi(false);
         }
 
         private void MultiThread_Click(object sender, RoutedEventArgs e)
         {
+            currentThreadMode = true;
             RenderVoronoi(true);
         }
         private void RenderVoronoi(bool multiThreaded)
@@ -96,7 +103,7 @@ namespace WpfAppDiagramV
             int bytesPerPixel = 4;
             byte[] pixels = new byte[height * stride];
 
-            int[] pixelCounts = new int[points.Count];
+            pixelCounts = new int[points.Count];
 
             Action<int, int> renderSlice = (yStart, yEnd) => {
                 for (int y = yStart; y < yEnd; y++)
@@ -161,7 +168,22 @@ namespace WpfAppDiagramV
         private double Distance(int x, int y, Point p)
         {
             double dx = x - p.X, dy = y - p.Y;
-            return dx * dx + dy * dy; 
+
+
+            switch (selectedMetric)
+            {
+                case DistanceMetric.Euclidean:
+                    return dx * dx + dy * dy;
+
+                case DistanceMetric.Manhattan:
+                    return Math.Abs(dx) + Math.Abs(dy);
+
+                case DistanceMetric.Chebyshev:
+                    return Math.Max(Math.Abs(dx), Math.Abs(dy));
+
+                default:
+                    throw new NotSupportedException("Обрана метрика не підтримується.");
+            }
         }
 
        
@@ -179,6 +201,57 @@ namespace WpfAppDiagramV
             }
 
             return Color.FromRgb(r, g, b);
+        }
+
+        private void RemoveWeakPoints_Click(object sender, RoutedEventArgs e)
+        {
+            if (points.Count == 0 || pixelCounts == null || pixelCounts.Length != points.Count)
+            {
+                MessageBox.Show("Спочатку побудуй діаграму!");
+                return;
+            }
+
+            double removePercent = 0.2; // 20%
+            int numToRemove = (int)(points.Count * removePercent);
+
+            if (numToRemove == 0) return;
+
+            var indicesToRemove = pixelCounts
+                .Select((count, index) => new { count, index })
+                .OrderBy(x => x.count)
+                .Take(numToRemove)
+                .Select(x => x.index)
+                .OrderByDescending(i => i) // Видаляємо з кінця, щоб не зламати індекси
+                .ToList();
+
+            foreach (var i in indicesToRemove)
+            {
+                points.RemoveAt(i);
+            }
+
+            DrawPoints();
+            RenderVoronoi(currentThreadMode); // Поточний режим — однопотоковий чи багатопотоковий
+        }
+
+        private void MetricSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (MetricSelector.SelectedItem is ComboBoxItem selectedItem)
+            {
+                switch (selectedItem.Content.ToString())
+                {
+                    case "Євклідова":
+                        selectedMetric = DistanceMetric.Euclidean;
+                        break;
+                    case "Манхеттенська":
+                        selectedMetric = DistanceMetric.Manhattan;
+                        break;
+                    case "Чебишева":
+                        selectedMetric = DistanceMetric.Chebyshev;
+                        break;
+                }
+
+                RenderVoronoi(currentThreadMode); // Перемалювати!
+            }
         }
     }
 }
