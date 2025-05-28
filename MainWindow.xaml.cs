@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace WpfAppDiagramV
@@ -71,14 +67,37 @@ namespace WpfAppDiagramV
 
         private void GeneratePoints_Click(object sender, RoutedEventArgs e)
         {
+            double canvasWidth = DrawCanvas.ActualWidth;
+            double canvasHeight = DrawCanvas.ActualHeight;
+
+            if (canvasWidth <= 0 || canvasHeight <= 0)
+            {
+                MessageBox.Show("Полотно ще не промальоване — спробуйте трохи пізніше");
+                return;
+            }
+
+            // Спроба отримати значення з TextBox
+            if (!int.TryParse(PointCountBox.Text, out int count) || count <= 0)
+            {
+                MessageBox.Show("Введіть коректну кількість точок (ціле число > 0)");
+                return;
+            }
+
             var rand = new Random();
             points.Clear();
-            for (int i = 0; i < 50; i++)
+            int margin = 5;
+
+            for (int i = 0; i < count; i++)
             {
-                points.Add(new Point(rand.Next(width), rand.Next(height)));
+                points.Add(new Point(
+                    rand.Next(margin, (int)(canvasWidth - margin)),
+                    rand.Next(margin, (int)(canvasHeight - margin))
+                ));
             }
+
             DrawPoints();
         }
+
         private void SingleThread_Click(object sender, RoutedEventArgs e)
         {
             currentThreadMode = false;
@@ -92,9 +111,24 @@ namespace WpfAppDiagramV
         }
         private void RenderVoronoi(bool multiThreaded)
         {
-            if (points.Count == 0) return;
+            width = (int)DrawCanvas.ActualWidth;
+            height = (int)DrawCanvas.ActualHeight;
 
-           
+            if (points.Count == 0 || width <= 0 || height <= 0)
+            {
+                MessageBox.Show("Полотно ще не готове або немає точок.");
+                return;
+            }
+
+            // Створити новий bitmap під розміри полотна
+            bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
+
+            // Якщо використовуєш <Image> на полотні — онови Source
+            if (DrawCanvas.Children.OfType<Image>().FirstOrDefault() is Image img)
+            {
+                img.Source = bitmap;
+            }
+
             var stopwatch = Stopwatch.StartNew();
             var cpuStart = Process.GetCurrentProcess().TotalProcessorTime;
 
@@ -105,7 +139,8 @@ namespace WpfAppDiagramV
 
             pixelCounts = new int[points.Count];
 
-            Action<int, int> renderSlice = (yStart, yEnd) => {
+            Action<int, int> renderSlice = (yStart, yEnd) =>
+            {
                 for (int y = yStart; y < yEnd; y++)
                 {
                     for (int x = 0; x < width; x++)
@@ -123,7 +158,6 @@ namespace WpfAppDiagramV
                         }
 
                         pixelCounts[closestIndex]++;
-
                         Color c = GetColorForIndex(closestIndex);
                         int index = y * stride + x * bytesPerPixel;
                         pixels[index] = c.B;
@@ -142,27 +176,49 @@ namespace WpfAppDiagramV
             {
                 int cores = Environment.ProcessorCount;
                 int slice = height / cores;
-                Parallel.For(0, cores, i => {
+                Parallel.For(0, cores, i =>
+                {
                     int y0 = i * slice;
                     int y1 = (i == cores - 1) ? height : y0 + slice;
                     renderSlice(y0, y1);
                 });
             }
 
+            // Малюємо чорні точки поверх
+            foreach (var p in points)
+            {
+                int px = (int)p.X;
+                int py = (int)p.Y;
+
+                for (int dx = -2; dx <= 2; dx++)
+                {
+                    for (int dy = -2; dy <= 2; dy++)
+                    {
+                        int x = px + dx;
+                        int y = py + dy;
+
+                        if (x >= 0 && x < width && y >= 0 && y < height)
+                        {
+                            int index = y * stride + x * bytesPerPixel;
+                            pixels[index] = 0;       // B
+                            pixels[index + 1] = 0;   // G
+                            pixels[index + 2] = 0;   // R
+                            pixels[index + 3] = 255; // A
+                        }
+                    }
+                }
+            }
+
             bitmap.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
-            StatusText.Text = "Готово";
 
             stopwatch.Stop();
             var cpuEnd = Process.GetCurrentProcess().TotalProcessorTime;
             var memoryUsed = GC.GetTotalMemory(false);
 
-           
             StatusText.Text = $"Реальний час: {stopwatch.Elapsed.TotalSeconds:F2} сек\n" +
                               $"CPU час: {(cpuEnd - cpuStart).TotalSeconds:F2} сек\n" +
-                              $"Пам’ять: {memoryUsed / 1024 / 1024} МБ";
-
-            StatusText.Text += $"\nТочок: {points.Count}, Пікселів: {width * height}";
-
+                              $"Пам’ять: {memoryUsed / 1024 / 1024} МБ\n" +
+                              $"Точок: {points.Count}, Пікселів: {width * height}";
         }
 
         private double Distance(int x, int y, Point p)
@@ -186,7 +242,7 @@ namespace WpfAppDiagramV
             }
         }
 
-       
+
 
         private Color GetColorForIndex(int index)
         {
@@ -194,10 +250,10 @@ namespace WpfAppDiagramV
             var g = (byte)(67 * index % 256);
             var b = (byte)(123 * index % 256);
 
-           
+
             if (r == 0 && g == 0 && b == 0)
             {
-                r = 50; g = 50; b = 50; 
+                r = 50; g = 50; b = 50;
             }
 
             return Color.FromRgb(r, g, b);

@@ -5,18 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfAppDiagramV"
         mc:Ignorable="d"
-         Title="MainWindow" Height="550" Width="800">
-    <Grid>
-        <Canvas Name="DrawCanvas" Background="White" MouseDown="DrawCanvas_MouseDown" Width="800" Height="450" Margin="0,100,0,0"/>
+         Title="MainWindow" Height="750" Width="950">
+    <Grid >
+        <Canvas Name="DrawCanvas" Background="White" Height ="400" MouseDown="DrawCanvas_MouseDown" Margin="0"/>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Background="#AAFFFFFF">
             <Button Content="Генерувати точки" Click="GeneratePoints_Click" Margin="5"/>
+            <TextBlock Text="Кількість точок:" VerticalAlignment="Center" Margin="5"/>
+            <TextBox Name="PointCountBox" Width="50" Text="50" Margin="5"/>
             <Button Content="Один потік" Click="SingleThread_Click" Margin="5"/>
             <Button Content="Багатопотоково" Click="MultiThread_Click" Margin="5"/>
-            <Button Content="Видалити 20% слабких" Click="RemoveWeakPoints_Click"/>
+            <Button Content="Видалити 20% слабких" Click="RemoveWeakPoints_Click" Margin="5"/>
             <TextBlock Name="StatusText" Margin="10" />
 
             <TextBlock Text="Метрика:" Margin="10,0,0,0" VerticalAlignment="Center"/>
-            <ComboBox Name="MetricSelector" Width="120" SelectionChanged="MetricSelector_SelectionChanged">
+            <ComboBox x:Name="MetricSelector" Width="120" Margin="5" SelectionChanged="MetricSelector_SelectionChanged">
                 <ComboBoxItem Content="Євклідова" IsSelected="True"/>
                 <ComboBoxItem Content="Манхеттенська"/>
                 <ComboBoxItem Content="Чебишева"/>
