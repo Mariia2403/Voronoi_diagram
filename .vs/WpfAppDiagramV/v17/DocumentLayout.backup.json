@@ -3,11 +3,11 @@
   "WorkspaceRootPath": "D:\\Visual Studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\WpfAppDiagramV\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C137AD64-3E9E-4004-9493-D243679F2891}|WpfAppDiagramV.csproj|D:\\Visual Studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\WpfAppDiagramV\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{C137AD64-3E9E-4004-9493-D243679F2891}|WpfAppDiagramV.csproj|d:\\visual studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\wpfappdiagramv\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C137AD64-3E9E-4004-9493-D243679F2891}|WpfAppDiagramV.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C137AD64-3E9E-4004-9493-D243679F2891}|WpfAppDiagramV.csproj|d:\\visual studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\wpfappdiagramv\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "AbsoluteMoniker": "D:0:0:{C137AD64-3E9E-4004-9493-D243679F2891}|WpfAppDiagramV.csproj|D:\\Visual Studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\WpfAppDiagramV\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{C137AD64-3E9E-4004-9493-D243679F2891}|WpfAppDiagramV.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
@@ -33,8 +33,7 @@
               "ToolTip": "D:\\Visual Studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\WpfAppDiagramV\\MainWindow.xaml",
               "RelativeToolTip": "MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-05-26T10:15:31.124Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-26T10:15:31.124Z"
             },
             {
               "$type": "Document",
@@ -42,9 +41,9 @@
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "D:\\Visual Studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\WpfAppDiagramV\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "MainWindow.xaml.cs",
-              "ToolTip": "D:\\Visual Studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\WpfAppDiagramV\\MainWindow.xaml.cs",
-              "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
+              "ToolTip": "D:\\Visual Studio (2)\\2 \u043A\u0443\u0440\u0441\\2 \u0441\u0435\u043C\u0435\u0441\u0442\u0440\\\u043E\u043E\u043F \u043B\u0430\u0431\u0438\\5 lab\\WpfAppDiagramV\\MainWindow.xaml.cs*",
+              "RelativeToolTip": "MainWindow.xaml.cs*",
+              "ViewState": "AgIAAKUAAAAAAAAAAAAowL8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-26T10:15:30.527Z",
               "EditorCaption": ""
