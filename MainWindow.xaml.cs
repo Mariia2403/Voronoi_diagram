@@ -29,11 +29,17 @@ namespace WpfAppDiagramV
         public MainWindow()
         {
             InitializeComponent();
-            width = (int)this.Width;
-            height = (int)this.Height;
-            bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
+            this.Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            width = (int)DrawCanvas.ActualWidth;
+            height = (int)DrawCanvas.ActualHeight;
+
+            //bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
             var img = new System.Windows.Controls.Image { Source = bitmap };
-            DrawCanvas.Children.Add(img);
+            DrawCanvas.Children.Insert(0, img); // Додаємо Image НАЙПЕРШИМ, щоб він був "на дні"
         }
         private void DrawCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -59,8 +65,8 @@ namespace WpfAppDiagramV
                     Height = 10,
                     Fill = Brushes.Black
                 };
-                Canvas.SetLeft(el, p.X - 2.5);
-                Canvas.SetTop(el, p.Y - 2.5);
+                Canvas.SetLeft(el, p.X - 5);
+                Canvas.SetTop(el, p.Y - 5);
                 DrawCanvas.Children.Add(el);
             }
         }
@@ -76,7 +82,7 @@ namespace WpfAppDiagramV
                 return;
             }
 
-            // Спроба отримати значення з TextBox
+           
             if (!int.TryParse(PointCountBox.Text, out int count) || count <= 0)
             {
                 MessageBox.Show("Введіть коректну кількість точок (ціле число > 0)");
@@ -123,7 +129,6 @@ namespace WpfAppDiagramV
             // Створити новий bitmap під розміри полотна
             bitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
 
-            // Якщо використовуєш <Image> на полотні — онови Source
             if (DrawCanvas.Children.OfType<Image>().FirstOrDefault() is Image img)
             {
                 img.Source = bitmap;
@@ -176,12 +181,15 @@ namespace WpfAppDiagramV
             {
                 int cores = Environment.ProcessorCount;
                 int slice = height / cores;
-                Parallel.For(0, cores, i =>
+                List<Task> tasks = new List<Task>();
+                for (int i = 0; i < cores; i++)
                 {
                     int y0 = i * slice;
                     int y1 = (i == cores - 1) ? height : y0 + slice;
-                    renderSlice(y0, y1);
-                });
+                    tasks.Add(Task.Run(() => renderSlice(y0, y1)));
+                }
+
+                Task.WaitAll(tasks.ToArray());
             }
 
             // Малюємо чорні точки поверх
